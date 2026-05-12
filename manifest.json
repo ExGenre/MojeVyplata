@@ -6,9 +6,9 @@
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
   "description": "Evidence práce a výplat",
-  "icons": [
+    "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/10384/10384161.png",
+      "src": "https://img.icons8.com/fluency/512/wallet.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
