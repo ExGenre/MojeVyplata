@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Moje Práce Profi v9</title>
+    <style>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --primary: #1a2a6c; --secondary: #b21f1f; --accent: #f1c40f; --bg: #eef2f7; }
+
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 0; padding-bottom: 80px; }
+
+        /* Dolní navigace */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 70px;
+            background: white; display: flex; box-shadow: 0 -2px 15px rgba(0,0,0,0.1); z-index: 1000;
+        }
+        .nav-item {
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: #888; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; cursor: pointer;
+        }
+        .nav-item.active { color: var(--primary); }
+        .nav-icon { font-size: 1.5rem; margin-bottom: 2px; }
+
+        /* Stránky */
+        .page { display: none; padding: 10px; max-width: 410px; margin: 0 auto; animation: fadeIn 0.2s; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Design Výplaty */
+        .app-card { background: white; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; }
+        .header { background: linear-gradient(to right, var(--primary), var(--secondary)); color: white; padding: 20px 15px; text-align: center; }
+        .main-amount { font-size: 2.3rem; font-weight: 800; margin: 5px 0; display: block; }
+        
+        .section { padding: 15px 18px; border-bottom: 1px solid #f0f0f0; }
+        .section-title {
+            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;
+            color: #888; margin-bottom: 12px; display: block;
+            border-left: 4px solid var(--secondary); padding-left: 10px;
+        }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .field { display: flex; flex-direction: column; }
+        label { font-size: 0.65rem; margin-bottom: 4px; color: #555; font-weight: 600; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 10px; font-size: 0.95rem; background: #fdfdfd; }
+        input[readonly] { background: #f5f5f5; color: #888; }
+
+        .stats { background: #fdfdfd; padding: 15px 18px; }
+        .stat-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.8rem; }
+        .stat-row b { color: var(--primary); }
+        .total-hruba { margin-top: 8px; padding-top: 8px; border-top: 2px dashed #eee; font-weight: bold; font-size: 0.95rem; }
+
+        /* Měsíc nav bar */
+        .month-nav { display: flex; gap: 8px; margin-bottom: 15px; justify-content: center; }
+        select { padding: 8px; border-radius: 10px; border: none; font-size: 0.9rem; background: rgba(255,255,255,0.2); color: white; outline: none; }
+        select option { color: #333; }
+
+        /* Zápis Směn */
+        .day-row { background: white; padding: 12px 15px; border-radius: 15px; display: flex; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03); margin-bottom: 8px; }
+        .day-info { flex: 1; }
+        .input-group { display: flex; flex-direction: column; align-items: center; margin-left: 10px; }
+        .input-label { font-size: 0.6rem; color: #aaa; margin-bottom: 2px; }
+        .input-mini { width: 60px; padding: 8px; border: 1.5px solid #eee; border-radius: 8px; text-align: center; font-size: 1rem; }
+
+        /* Počítadlo */
+        .counter-box { text-align: center; padding: 40px 20px; }
+        .counter-val { font-size: 5rem; font-weight: 900; color: var(--primary); display: block; margin-bottom: 20px; }
+        .btn-c { width: 80px; height: 80px; border-radius: 50%; border: none; font-size: 2rem; color: white; font-weight: bold; }
+        .btn-b { background: #eee; border: none; padding: 12px; border-radius: 12px; width: 100%; margin-top: 10px; font-weight: bold; color: #666; }
+    </style>
+</head>
+<body>
+
+<div id="pageCalc" class="page active">
+    <div class="app-card">
+        <div class="header">
+            <div class="month-nav">
+                <select id="mSel" onchange="syncData()"></select>
+                <select id="ySel" onchange="syncData()"></select>
+            </div>
+            <span style="opacity: 0.8; font-size: 0.75rem;">ČISTÝ PŘÍJEM CELKEM</span>
+            <span class="main-amount" id="fNetto">0 Kč</span>
+            <span id="fMeal" style="font-size: 0.8rem;">Stravné: 0 Kč</span>
+        </div>
+
+        <div class="section">
+            <span class="section-title">Základ a Sazby</span>
+            <div class="grid">
+                <div class="field"><label>Měsíční základ</label><input type="number" id="base" value="21000" oninput="savePay()"></div>
+                <div class="field"><label>Průměr / hod</label><input type="number" id="avg" placeholder="Zadej..." oninput="savePay()"></div>
+                <div class="field"><label>Fond hodin</label><input type="number" id="fund" placeholder="Zadej..." oninput="savePay()"></div>
+                <div class="field"><label>Směny (stravné)</label><input type="number" id="shifts" placeholder="0" oninput="savePay()"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <span class="section-title">Bonusy a Příplatky</span>
+            <div class="grid">
+                <div class="field"><label>Docházka bonus</label><input type="number" id="bD" value="5000" oninput="savePay()"></div>
+                <div class="field"><label>Manipulace (ks)</label><input type="number" id="bM" readonly></div>
+                <div class="field"><label>Mimořádný bonus</label><input type="number" id="bX" placeholder="0" oninput="savePay()"></div>
+                <div class="field"><label>Víkend (směn)</label><input type="number" id="sW" placeholder="0" oninput="savePay()"></div>
+                <div class="field"><label>Noční (směn)</label><input type="number" id="sN" placeholder="0" oninput="savePay()"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <span class="section-title">Absence a Svátek</span>
+            <div class="grid">
+                <div class="field"><label>Dovolená (dní)</label><input type="number" id="vaca" placeholder="0" oninput="savePay()"></div>
+                <div class="field"><label>Svátek v práci (dní)</label><input type="number" id="hH" placeholder="0" oninput="savePay()"></div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-row"><span>Základní mzda (zkr.):</span><b id="rB_only">0 Kč</b></div>
+            <div class="stat-row"><span>Docházka bonus (zkr.):</span><b id="rD_only">0 Kč</b></div>
+            <div class="stat-row"><span>Odměna za manipulace:</span><b id="rM_val">0 Kč</b></div>
+            <div class="stat-row"><span>Víkendy (50%):</span><b id="rW">0 Kč</b></div>
+            <div class="stat-row"><span>Noční (20%):</span><b id="rN">0 Kč</b></div>
+            <div class="stat-row"><span>Svátek (náhrada):</span><b id="rH">0 Kč</b></div>
+            <div class="stat-row"><span>Dovolená (náhrada):</span><b id="rV">0 Kč</b></div>
+            <div class="stat-row total-hruba"><span>Hrubá mzda:</span><span id="rG">0 Kč</span></div>
+        </div>
+    </div>
+</div>
+
+<div id="pageRecord" class="page">
+    <div class="app-card">
+        <div class="header">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                <div><span id="sumM" style="font-size: 1.5rem; font-weight: bold;">0</span><br><small>MANIP.</small></div>
+                <div><span id="avgM" style="font-size: 1.5rem; font-weight: bold; color: var(--accent);">0</span><br><small>PRŮMĚR</small></div>
+                <div><span id="sumO" style="font-size: 1.5rem; font-weight: bold;">0</span><br><small>ODHOZY</small></div>
+            </div>
+        </div>
+        <div id="daysList" style="padding: 10px;"></div>
+    </div>
+</div>
+
+<div id="pageInfo" class="page">
+    <div class="app-card counter-box">
+        <span class="counter-val" id="clickVal">0</span>
+        <div style="display: flex; gap: 20px; justify-content: center;">
+            <button class="btn-c" style="background: #e74c3c;" onclick="count(-1)">-</button>
+            <button class="btn-c" style="background: #2ecc71;" onclick="count(1)">+</button>
+        </div>
+        <button class="btn-b" onclick="count('reset')">Resetovat počítadlo</button>
+    </div>
+    
+    <div class="app-card" style="margin-top: 15px; padding: 20px;">
+        <span class="section-title" style="margin-left:0">Zálohování dat</span>
+        <button class="btn-b" onclick="exportAll()">Exportovat Zálohu</button>
+        <button class="btn-b" onclick="document.getElementById('imp').click()">Importovat Zálohu</button>
+        <input type="file" id="imp" hidden onchange="importAll(event)">
+    </div>
+</div>
+
+<nav class="bottom-nav">
+    <div class="nav-item active" onclick="showPage('pageCalc', this)"><span class="nav-icon">💰</span>Výplata</div>
+    <div class="nav-item" onclick="showPage('pageRecord', this)"><span class="nav-icon">📝</span>Zápis</div>
+    <div class="nav-item" onclick="showPage('pageInfo', this)"><span class="nav-icon">🔢</span>Počítadlo</div>
+</nav>
+
+<script>
+    const fields = ['base', 'avg', 'fund', 'shifts', 'bD', 'bM', 'bX', 'sW', 'sN', 'vaca', 'hH'];
+    const monthNames = ["Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"];
+
+    function showPage(id, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        el.classList.add('active');
+    }
+
+    function syncData() {
+        renderDays();
+        loadPay();
+    }
+
+    // LOGIKA ZÁPISU
+    function renderDays() {
+        const m = parseInt(document.getElementById('mSel').value);
+        const y = parseInt(document.getElementById('ySel').value);
+        const daysInMonth = new Date(y, m + 1, 0).getDate();
+        const storageKey = `data_${y}_${m}`;
+        const savedData = JSON.parse(localStorage.getItem(storageKey)) || {};
+        
+        const list = document.getElementById('daysList');
+        list.innerHTML = '';
+
+        for (let d = 1; d <= daysInMonth; d++) {
+            const date = new Date(y, m, d);
+            const valM = savedData[d]?.m || '';
+            const valO = savedData[d]?.o || '';
+            const row = document.createElement('div');
+            row.className = 'day-row';
+            row.innerHTML = `
+                <div class="day-info"><b>${d}.</b> <small>${["Ne","Po","Út","St","Čt","Pá","So"][date.getDay()]}</small></div>
+                <div class="input-group"><span class="input-label">MAN.</span><input type="number" class="input-mini" value="${valM}" oninput="saveDay(${d},'m',this.value)"></div>
+                <div class="input-group"><span class="input-label">ODH.</span><input type="number" class="input-mini" value="${valO}" oninput="saveDay(${d},'o',this.value)"></div>
+            `;
+            list.appendChild(row);
+        }
+        updateTotals();
+    }
+
+    function saveDay(d, type, val) {
+        const m = document.getElementById('mSel').value;
+        const y = document.getElementById('ySel').value;
+        const key = `data_${y}_${m}`;
+        let data = JSON.parse(localStorage.getItem(key)) || {};
+        if (!data[d]) data[d] = {m:0, o:0};
+        data[d][type] = val === '' ? 0 : parseInt(val);
+        localStorage.setItem(key, JSON.stringify(data));
+        updateTotals();
+    }
+
+    function updateTotals() {
+        const m = document.getElementById('mSel').value;
+        const y = document.getElementById('ySel').value;
+        const data = JSON.parse(localStorage.getItem(`data_${y}_${m}`)) || {};
+        let tm = 0, to = 0, countM = 0;
+        Object.values(data).forEach(d => {
+            tm += (d.m || 0); to += (d.o || 0);
+            if(d.m > 0) countM++;
+        });
+        document.getElementById('sumM').innerText = tm;
+        document.getElementById('avgM').innerText = countM > 0 ? (tm/countM).toFixed(1) : 0;
+        document.getElementById('sumO').innerText = to;
+        
+        document.getElementById('bM').value = tm;
+        calcPay();
+    }
+
+    // LOGIKA VÝPLATY
+    function loadPay() {
+        const m = document.getElementById('mSel').value;
+        const y = document.getElementById('ySel').value;
+        const data = JSON.parse(localStorage.getItem(`pay_${y}_${m}`)) || {};
+        fields.forEach(id => {
+            if (id !== 'bM') {
+                document.getElementById(id).value = data[id] || (id === 'base' ? 21000 : (id === 'bD' ? 5000 : ''));
+            }
+        });
+        calcPay();
+    }
+
+    function savePay() {
+        const m = document.getElementById('mSel').value;
+        const y = document.getElementById('ySel').value;
+        const data = {};
+        fields.forEach(id => { data[id] = document.getElementById(id).value; });
+        localStorage.setItem(`pay_${y}_${m}`, JSON.stringify(data));
+        calcPay();
+    }
+
+    function calcPay() {
+        const v = (id) => parseFloat(document.getElementById(id).value) || 0;
+        const ratio = (v('fund') - (v('vaca')*11)) / v('fund') || 1;
+        
+        const curB = v('base') * ratio;
+        const curD = v('bD') * ratio;
+        const mMoney = v('bM') * 5.9;
+        const pW = (v('sW')*11) * (v('avg')*0.5);
+        const pN = (v('sN')*7.5) * (v('avg')*0.2);
+        const pH = (v('hH')*11) * v('avg');
+        const pV = (v('vaca')*11) * v('avg');
+
+        const gross = curB + curD + mMoney + v('bX') + pW + pN + pH + pV;
+        const soc = Math.ceil(gross * 0.071);
+        const zdra = Math.ceil(gross * 0.045);
+        let tax = Math.ceil(gross * 0.15);
+        tax = Math.max(0, tax - 2570);
+
+        const netto = gross - soc - zdra - tax;
+        const meals = v('shifts') * 200;
+
+        document.getElementById('fNetto').innerText = Math.round(netto + meals).toLocaleString() + ' Kč';
+        document.getElementById('fMeal').innerText = `Stravné: ${meals.toLocaleString()} Kč`;
+        document.getElementById('rB_only').innerText = Math.round(curB).toLocaleString() + ' Kč';
+        document.getElementById('rD_only').innerText = Math.round(curD).toLocaleString() + ' Kč';
+        document.getElementById('rM_val').innerText = Math.round(mMoney).toLocaleString() + ' Kč';
+        document.getElementById('rW').innerText = Math.round(pW).toLocaleString() + ' Kč';
+        document.getElementById('rN').innerText = Math.round(pN).toLocaleString() + ' Kč';
+        document.getElementById('rH').innerText = Math.round(pH).toLocaleString() + ' Kč';
+        document.getElementById('rV').innerText = Math.round(pV).toLocaleString() + ' Kč';
+        document.getElementById('rG').innerText = Math.round(gross).toLocaleString() + ' Kč';
+    }
+
+    // POČÍTADLO
+    let c = parseInt(localStorage.getItem('c_val')) || 0;
+    document.getElementById('clickVal').innerText = c;
+    function count(val) {
+        if(val === 'reset') c = 0; else c += val;
+        document.getElementById('clickVal').innerText = c;
+        localStorage.setItem('c_val', c);
+    }
+
+    // ZÁLOHA
+    function exportAll() {
+        let all = {};
+        for(let i=0; i<localStorage.length; i++) {
+            let k = localStorage.key(i);
+            if(k.startsWith('data_') || k.startsWith('pay_')) all[k] = localStorage.getItem(k);
+        }
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([JSON.stringify(all)], {type:'application/json'}));
+        a.download = `moje_prace_zaloha.json`;
+        a.click();
+    }
+
+    function importAll(e) {
+        const r = new FileReader();
+        r.onload = (ev) => {
+            const d = JSON.parse(ev.target.result);
+            Object.keys(d).forEach(k => localStorage.setItem(k, d[k]));
+            alert('Data nahrána!'); location.reload();
+        };
+        r.readAsText(e.target.files[0]);
+    }
+
+    // START
+    const d = new Date();
+    monthNames.forEach((n, i) => document.getElementById('mSel').innerHTML += `<option value="${i}" ${i==d.getMonth()?'selected':''}>${n}</option>`);
+    for(let y=d.getFullYear(); y>=d.getFullYear()-1; y--) document.getElementById('ySel').innerHTML += `<option value="${y}">${y}</option>`;
+    syncData();
+</script>
+
+</body>
+</html>
