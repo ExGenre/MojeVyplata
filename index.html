@@ -12,69 +12,130 @@
     <meta name="apple-mobile-web-app-title" content="Práce">
 
     <style>
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        :root { --primary: #1a2a6c; --secondary: #b21f1f; --accent: #f1c40f; --bg: #eef2f7; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    
+    :root { 
+        --primary: #38bdf8;    /* Jasně modrá */
+        --secondary: #818cf8;  /* Fialovomodrá */
+        --accent: #f1c40f;     /* Zlatá */
+        --bg: #0f172a;         /* Velmi tmavé pozadí */
+        --card: #1e293b;       /* Barva karet */
+        --text: #f8fafc;       /* Hlavní světlý text */
+        --text-dim: #94a3b8;   /* Vedlejší šedý text */
+        --border: #334155;     /* Barva linek a ohraničení */
+    }
 
-        body { font-family: -apple-system, system-ui, sans-serif; background: #ffffff; margin: 0; padding: 0; padding-bottom: 80px; }
+    body { 
+        font-family: -apple-system, system-ui, sans-serif; 
+        background: var(--bg); 
+        color: var(--text);
+        margin: 0; padding: 0; padding-bottom: 80px; 
+        user-select: none; 
+    }
 
-        /* Dolní navigace */
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; height: 70px;
-            background: white; display: flex; box-shadow: 0 -2px 15px rgba(0,0,0,0.1); z-index: 1000;
-        }
-        .nav-item {
-            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: #888; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; cursor: pointer;
-        }
-        .nav-item.active { color: var(--primary); }
-        .nav-icon { font-size: 1.5rem; margin-bottom: 2px; }
+    /* Dolní navigace */
+    .bottom-nav {
+        position: fixed; bottom: 0; left: 0; right: 0; height: 75px;
+        background: var(--card); display: flex; 
+        box-shadow: 0 -5px 20px rgba(0,0,0,0.3); z-index: 1000;
+        padding-bottom: env(safe-area-inset-bottom);
+        border-top: 1px solid var(--border);
+    }
+    .nav-item {
+        flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        color: var(--text-dim); font-size: 0.7rem; font-weight: bold; text-transform: uppercase; cursor: pointer;
+    }
+    .nav-item.active { color: var(--primary); }
+    .nav-icon { font-size: 1.6rem; margin-bottom: 2px; }
 
-        /* Stránky */
-        .page { display: none; padding: 10px; max-width: 410px; margin: 0 auto; animation: fadeIn 0.2s; }
-        .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    /* Stránky */
+    .page { display: none; padding: 10px; max-width: 410px; margin: 0 auto; animation: fadeIn 0.2s; }
+    .page.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Design Výplaty */
-        .app-card { background: white; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; }
-        .header { background: linear-gradient(to right, var(--primary), var(--secondary)); color: white; padding: 20px 15px; text-align: center; }
-        .main-amount { font-size: 2.3rem; font-weight: 800; margin: 5px 0; display: block; }
-        
-        .section { padding: 15px 18px; border-bottom: 1px solid #f0f0f0; }
-        .section-title {
-            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;
-            color: #888; margin-bottom: 12px; display: block;
-            border-left: 4px solid var(--secondary); padding-left: 10px;
-        }
+    /* Karty */
+    .app-card { 
+        background: var(--card); 
+        border-radius: 25px; 
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+        overflow: hidden; margin-bottom: 15px; 
+        border: 1px solid var(--border);
+    }
+    .header { 
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); 
+        color: white; 
+        padding: calc(20px + env(safe-area-inset-top)) 15px 25px 15px; 
+        text-align: center; 
+        border-bottom: 1px solid var(--border);
+    }
+    .main-amount { font-size: 2.4rem; font-weight: 800; margin: 5px 0; display: block; color: var(--primary); }
+    
+    .section { padding: 15px 18px; border-bottom: 1px solid var(--border); }
+    .section-title {
+        font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;
+        color: var(--text-dim); margin-bottom: 12px; display: block;
+        border-left: 4px solid var(--primary); padding-left: 10px;
+    }
 
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .field { display: flex; flex-direction: column; }
-        label { font-size: 0.65rem; margin-bottom: 4px; color: #555; font-weight: 600; }
-        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 10px; font-size: 0.95rem; background: #fdfdfd; }
-        input[readonly] { background: #f5f5f5; color: #888; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field { display: flex; flex-direction: column; }
+    label { font-size: 0.65rem; margin-bottom: 5px; color: var(--text-dim); font-weight: 600; }
+    
+    input, select { 
+        width: 100%; padding: 12px; 
+        border: 1px solid var(--border); 
+        border-radius: 12px; font-size: 1rem; 
+        background: #0f172a; color: white;
+        outline: none;
+    }
+    input[readonly] { background: #1e293b; color: var(--text-dim); border-color: transparent; }
+    
+    select { background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border); }
 
-        .stats { background: #fdfdfd; padding: 15px 18px; }
-        .stat-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.8rem; }
-        .stat-row b { color: var(--primary); }
-        .total-hruba { margin-top: 8px; padding-top: 8px; border-top: 2px dashed #eee; font-weight: bold; font-size: 0.95rem; }
+    /* Statistiky */
+    .stats { background: rgba(0,0,0,0.1); padding: 15px 18px; }
+    .stat-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.85rem; color: var(--text-dim); }
+    .stat-row b { color: var(--text); }
+    .total-hruba { 
+        margin-top: 10px; padding-top: 10px; 
+        border-top: 2px dashed var(--border); 
+        font-weight: bold; font-size: 1rem; color: var(--text);
+    }
 
-        /* Měsíc nav bar */
-        .month-nav { display: flex; gap: 8px; margin-bottom: 15px; justify-content: center; }
-        select { padding: 8px; border-radius: 10px; border: none; font-size: 0.9rem; background: rgba(255,255,255,0.2); color: white; outline: none; }
-        select option { color: #333; }
+    /* Zápis dní */
+    .day-row { 
+        background: rgba(255,255,255,0.03); 
+        padding: 12px 15px; border-radius: 18px; 
+        display: flex; align-items: center; 
+        margin-bottom: 10px; border: 1px solid var(--border);
+    }
+    .day-info { flex: 1; color: var(--text); }
+    .day-info b { font-size: 1.1rem; }
+    .input-mini { 
+        width: 65px; padding: 10px; 
+        border: 1px solid var(--border); 
+        border-radius: 10px; text-align: center; 
+        font-size: 1.1rem; background: var(--bg); color: white;
+    }
 
-        /* Zápis Směn */
-        .day-row { background: white; padding: 12px 15px; border-radius: 15px; display: flex; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03); margin-bottom: 8px; }
-        .day-info { flex: 1; }
-        .input-group { display: flex; flex-direction: column; align-items: center; margin-left: 10px; }
-        .input-label { font-size: 0.6rem; color: #aaa; margin-bottom: 2px; }
-        .input-mini { width: 60px; padding: 8px; border: 1.5px solid #eee; border-radius: 8px; text-align: center; font-size: 1rem; }
+    /* Počítadlo */
+    .counter-box { text-align: center; padding: 40px 20px; }
+    .counter-val { 
+        font-size: 6rem; font-weight: 900; color: var(--primary); 
+        display: block; margin-bottom: 25px; 
+        text-shadow: 0 0 30px rgba(56, 189, 248, 0.2); 
+    }
+    .btn-c { 
+        width: 85px; height: 85px; border-radius: 50%; border: none; 
+        font-size: 2.2rem; color: white; font-weight: bold; 
+    }
+    .btn-b { 
+        background: var(--card); border: 1px solid var(--border); 
+        padding: 15px; border-radius: 15px; width: 100%; 
+        margin-top: 12px; font-weight: bold; color: var(--text); 
+    }
+</style>
 
-        /* Počítadlo */
-        .counter-box { text-align: center; padding: 40px 20px; }
-        .counter-val { font-size: 5rem; font-weight: 900; color: var(--primary); display: block; margin-bottom: 20px; }
-        .btn-c { width: 80px; height: 80px; border-radius: 50%; border: none; font-size: 2rem; color: white; font-weight: bold; }
-        .btn-b { background: #eee; border: none; padding: 12px; border-radius: 12px; width: 100%; margin-top: 10px; font-weight: bold; color: #666; }
-    </style>
 </head>
 <body>
 
