@@ -11,8 +11,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Práce">
 
-    <style>
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    
+<style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
     
     :root { 
         --primary: #38bdf8;    /* Jasně modrá */
@@ -44,14 +45,15 @@
     .nav-item {
         flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
         color: var(--text-dim); font-size: 0.7rem; font-weight: bold; text-transform: uppercase; cursor: pointer;
+        transition: color 0.2s;
     }
     .nav-item.active { color: var(--primary); }
-    .nav-icon { font-size: 1.6rem; margin-bottom: 2px; }
+    .nav-icon { font-size: 1.6rem; margin-bottom: 4px; }
 
     /* Stránky */
     .page { display: none; padding: 10px; max-width: 410px; margin: 0 auto; animation: fadeIn 0.2s; }
     .page.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
     /* Karty */
     .app-card { 
@@ -61,60 +63,100 @@
         overflow: hidden; margin-bottom: 15px; 
         border: 1px solid var(--border);
     }
+    
+    /* Moderní Header (Výplata a Zápis) */
     .header { 
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); 
         color: white; 
-        padding: calc(20px + env(safe-area-inset-top)) 15px 25px 15px; 
+        padding: calc(25px + env(safe-area-inset-top)) 20px 30px 20px; 
         text-align: center; 
         border-bottom: 1px solid var(--border);
     }
-    .main-amount { font-size: 2.4rem; font-weight: 800; margin: 5px 0; display: block; color: var(--primary); }
     
-    .section { padding: 15px 18px; border-bottom: 1px solid var(--border); }
+    /* Úprava výběru měsíce/roku - Vzdušnější design */
+    .month-nav { 
+        display: flex; gap: 12px; 
+        margin-bottom: 25px; /* Zvětšená mezera pod výběrem */
+        justify-content: center; 
+    }
+    select { 
+        background: rgba(255,255,255,0.08); 
+        color: white; 
+        border: 1px solid rgba(255,255,255,0.15); 
+        padding: 10px 16px; 
+        border-radius: 20px; /* Moderní zakulacení */
+        font-size: 1rem;
+        font-weight: 600;
+        outline: none;
+        text-align: center;
+        appearance: none; /* Odstraní výchozí šipku v některých mobilech */
+    }
+    
+    .main-amount { 
+        font-size: 2.6rem; font-weight: 800; 
+        margin: 15px 0 20px 0; /* Krásný prostor pro hlavní částku */
+        display: block; color: var(--primary); 
+        letter-spacing: -0.5px;
+    }
+    
+    /* Běžné sekce */
+    .section { padding: 20px; border-bottom: 1px solid var(--border); }
     .section-title {
-        font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;
-        color: var(--text-dim); margin-bottom: 12px; display: block;
-        border-left: 4px solid var(--primary); padding-left: 10px;
+        font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.2px;
+        color: var(--text-dim); margin-bottom: 15px; display: block;
+        border-left: 4px solid var(--primary); padding-left: 12px;
+        font-weight: bold;
     }
 
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     .field { display: flex; flex-direction: column; }
-    label { font-size: 0.65rem; margin-bottom: 5px; color: var(--text-dim); font-weight: 600; }
+    label { font-size: 0.7rem; margin-bottom: 6px; color: var(--text-dim); font-weight: 600; }
     
-    input, select { 
-        width: 100%; padding: 12px; 
+    input { 
+        width: 100%; padding: 12px 15px; 
         border: 1px solid var(--border); 
-        border-radius: 12px; font-size: 1rem; 
+        border-radius: 14px; font-size: 1.05rem; 
         background: #0f172a; color: white;
-        outline: none;
+        transition: border-color 0.2s;
     }
+    input:focus { border-color: var(--primary); }
     input[readonly] { background: #1e293b; color: var(--text-dim); border-color: transparent; }
-    
-    select { background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border); }
 
     /* Statistiky */
-    .stats { background: rgba(0,0,0,0.1); padding: 15px 18px; }
-    .stat-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.85rem; color: var(--text-dim); }
+    .stats { background: rgba(0,0,0,0.15); padding: 20px; }
+    .stat-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.9rem; color: var(--text-dim); }
     .stat-row b { color: var(--text); }
     .total-hruba { 
-        margin-top: 10px; padding-top: 10px; 
+        margin-top: 12px; padding-top: 12px; 
         border-top: 2px dashed var(--border); 
-        font-weight: bold; font-size: 1rem; color: var(--text);
+        font-weight: bold; font-size: 1.1rem; color: var(--text);
     }
 
-    /* Zápis dní */
+    /* Zápis dní - Provzdušněný design políček */
     .day-row { 
-        background: rgba(255,255,255,0.03); 
-        padding: 12px 15px; border-radius: 18px; 
-        display: flex; align-items: center; 
-        margin-bottom: 10px; border: 1px solid var(--border);
+        background: rgba(255,255,255,0.02); 
+        padding: 16px 20px; /* Větší rámeček pro každý den */
+        border-radius: 18px; 
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 12px; 
+        border: 1px solid var(--border);
     }
     .day-info { flex: 1; color: var(--text); }
-    .day-info b { font-size: 1.1rem; }
+    .day-info b { font-size: 1.2rem; }
+    
+    /* Odsazení a upravení skupin pro zápis */
+    .input-group { 
+        display: flex; flex-direction: column; align-items: center; 
+        margin-left: 15px; gap: 6px; /* Zajišťuje prostor mezi nápisem a políčkem */
+    }
+    .input-label { 
+        font-size: 0.65rem; color: var(--text-dim); 
+        font-weight: bold; letter-spacing: 1px; 
+    }
     .input-mini { 
-        width: 65px; padding: 10px; 
+        width: 75px; padding: 12px 5px; /* Mírně větší políčko pro pohodlné psaní */
         border: 1px solid var(--border); 
-        border-radius: 10px; text-align: center; 
+        border-radius: 12px; text-align: center; 
         font-size: 1.1rem; background: var(--bg); color: white;
     }
 
@@ -122,17 +164,20 @@
     .counter-box { text-align: center; padding: 40px 20px; }
     .counter-val { 
         font-size: 6rem; font-weight: 900; color: var(--primary); 
-        display: block; margin-bottom: 25px; 
+        display: block; margin-bottom: 30px; 
         text-shadow: 0 0 30px rgba(56, 189, 248, 0.2); 
     }
     .btn-c { 
         width: 85px; height: 85px; border-radius: 50%; border: none; 
         font-size: 2.2rem; color: white; font-weight: bold; 
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: transform 0.1s;
     }
+    .btn-c:active { transform: scale(0.95); }
     .btn-b { 
         background: var(--card); border: 1px solid var(--border); 
-        padding: 15px; border-radius: 15px; width: 100%; 
-        margin-top: 12px; font-weight: bold; color: var(--text); 
+        padding: 16px; border-radius: 15px; width: 100%; 
+        margin-top: 15px; font-weight: bold; color: var(--text); 
+        font-size: 1rem;
     }
 </style>
 
